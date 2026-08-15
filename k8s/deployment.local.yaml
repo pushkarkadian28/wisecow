@@ -1,0 +1,38 @@
+# Use this version ONLY for local testing with Kind, before you have a
+# GHCR image pushed. Swap it for deployment.yaml once CI/CD is working.
+#
+# Build and load first:
+#   docker build -t wisecow:local .
+#   kind load docker-image wisecow:local --name wisecow
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wisecow
+  labels:
+    app: wisecow
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: wisecow
+  template:
+    metadata:
+      labels:
+        app: wisecow
+    spec:
+      containers:
+        - name: wisecow
+          image: wisecow:local
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 4499
+          readinessProbe:
+            tcpSocket:
+              port: 4499
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 4499
+            initialDelaySeconds: 10
+            periodSeconds: 20
